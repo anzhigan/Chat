@@ -76,7 +76,7 @@ class Client{
                         this.stop();
                         break; // выходим из цикла если пришло "stop"
                     } else {
-                        out.write(userWord + "\n"); // отправляем на сервер
+                        out.write(userWord + "\n");// отправляем на сервер
                         out.flush();
                     }
                 } catch (IOException e) {
