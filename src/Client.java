@@ -9,20 +9,7 @@ class Client{
     private BufferedReader in;
     private BufferedReader console;
 
-
-    private void open() throws  IOException{
-        console = new BufferedReader(new InputStreamReader(System.in));//поток считывания символов с консоли
-        out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));//поток на запись
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));//поток на чтение
-    }
-
-    private void close() throws IOException{
-        if (console != null) console.close();
-        if (out != null) out.close();
-        if (socket != null) socket.close();
-    }
-
-    private Client(int Port) throws IOException {//создаем клинта и подключаем его к серваку "localhost" с портом 322
+    Client(int Port) throws IOException {//создаем клинта и подключаем его к серваку "localhost" с портом 322
         System.out.println("Соединение с портом " + Port +  " устанавливается");
         try{//считываем написанные клинтом символы и отправляем их на сервак
             socket = new Socket("localhost", Port);
@@ -37,6 +24,19 @@ class Client{
 
     }
 
+    private void open() throws  IOException{
+        console = new BufferedReader(new InputStreamReader(System.in));//поток считывания символов с консоли
+        out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));//поток на запись
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));//поток на чтение
+    }
+
+    private void close() throws IOException{
+        if (console != null) console.close();
+        if (out != null) out.close();
+        if (socket != null) socket.close();
+    }
+
+
     // нить чтения
     private class ReadMsg extends Thread {
         @Override
@@ -49,8 +49,9 @@ class Client{
                         Client.this.close();
                         this.stop();
                         break; // выходим из цикла если пришло "stop"
+                    }else{
+                        System.out.println(str); // пишем сообщение с сервера на консоль
                     }
-                    System.out.println(str); // пишем сообщение с сервера на консоль
                 }
             } catch (IOException e) {
                 try {
@@ -71,14 +72,13 @@ class Client{
                 try {
                     userWord = console.readLine(); // считываем поток с консоли
                     if (userWord.equals("stop")) {
-                        out.write("stop" + "\n");
                         Client.this.close();
                         this.stop();
                         break; // выходим из цикла если пришло "stop"
                     } else {
                         out.write(userWord + "\n"); // отправляем на сервер
+                        out.flush();
                     }
-                    out.flush();
                 } catch (IOException e) {
                     try {
                         Client.this.close();
@@ -89,16 +89,6 @@ class Client{
                 }
 
             }
-        }
-    }
-
-    public static void main(String args[])
-    {
-        int PORT = 322;
-        try {
-            Client client = new Client(PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
